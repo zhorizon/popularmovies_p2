@@ -1,10 +1,12 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.ui;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+
+import com.lazycat.android.popularmovies.app.R;
 
 public class DetailActivity extends ActionBarActivity {
 

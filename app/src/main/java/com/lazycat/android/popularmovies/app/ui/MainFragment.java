@@ -1,4 +1,4 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,13 +14,18 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.lazycat.android.popularmovies.app.FlavorMovie;
+import com.lazycat.android.popularmovies.app.R;
+import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
+import com.lazycat.android.popularmovies.app.utils.NetworkUtils;
+
 import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
-    private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+public class MainFragment extends Fragment {
+    private static final String LOG_TAG = MainFragment.class.getSimpleName();
 
     public static final String FLAVOR_MOVIE_PARCEL_KEY = "flavorMovie.parcel.key";
     public static final String FLAVOR_MOVIES_SAVEDINSTANCESTATE_KEY = "flavorMovie.savedInstanceState.key";
@@ -35,7 +40,7 @@ public class MainActivityFragment extends Fragment {
     // Current sorting by value, will be saved in bundle
     private String mSortBy = null;
 
-    public MainActivityFragment() {
+    public MainFragment() {
     }
 
     @Override

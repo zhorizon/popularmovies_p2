@@ -1,4 +1,4 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.lazycat.android.popularmovies.app.FlavorMovie;
+import com.lazycat.android.popularmovies.app.R;
+import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

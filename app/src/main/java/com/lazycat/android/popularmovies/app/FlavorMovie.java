@@ -200,7 +200,7 @@ public class FlavorMovie implements Parcelable {
         popularity = in.readFloat();
         voteAverage = in.readInt();
         voteCount = in.readInt();
-        adult = Boolean.valueOf(in.readString());
-        video = Boolean.valueOf(in.readString());
+        adult = Boolean.parseBoolean(in.readString());
+        video = Boolean.parseBoolean(in.readString());
     }
 }

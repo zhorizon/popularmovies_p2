@@ -1,4 +1,4 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

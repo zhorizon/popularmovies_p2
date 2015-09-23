@@ -1,7 +1,9 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.utils;
 
 import android.net.Uri;
 import android.util.Log;
+
+import com.lazycat.android.popularmovies.app.FlavorMovie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +38,7 @@ public class DownloadUtils {
                 .appendQueryParameter(API_KEY_PARAM, apiKey)
                 .build();
 
-        Log.v(LOG_TAG, "themoviedb URI: " + buildUri.toString());
+        Log.v(LOG_TAG, "discover movies URI: " + buildUri.toString());
 
         String movieJsonStr = null;
 

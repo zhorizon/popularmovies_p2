@@ -1,4 +1,4 @@
-package com.lazycat.android.popularmovies.app;
+package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
@@ -11,16 +11,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lazycat.android.popularmovies.app.FlavorMovie;
+import com.lazycat.android.popularmovies.app.R;
+import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
+import com.lazycat.android.popularmovies.app.utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment {
-    private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+public class DetailFragment extends Fragment {
+    private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
-    public DetailActivityFragment() {
+    public DetailFragment() {
     }
 
     @Override
@@ -32,7 +36,7 @@ public class DetailActivityFragment extends Fragment {
 
         if (intent != null) {
             // get flavorMovie data from intent
-            FlavorMovie flavorMovie = intent.getParcelableExtra(MainActivityFragment.FLAVOR_MOVIE_PARCEL_KEY);
+            FlavorMovie flavorMovie = intent.getParcelableExtra(MainFragment.FLAVOR_MOVIE_PARCEL_KEY);
 
             if (flavorMovie != null) {
                 ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
