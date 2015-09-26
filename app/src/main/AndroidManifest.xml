@@ -36,5 +36,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
+        <!-- android:exported="false" means that only our app can see our content provider -->
+        <!-- android:syncable="true" mean that this content provider will be synced with a server -->
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".data.MovieProvider"
+            android:exported="false"
+            android:syncable="true" />
     </application>
 </manifest>

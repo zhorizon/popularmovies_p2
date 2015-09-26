@@ -11,24 +11,21 @@ import java.util.Date;
  */
 public class FlavorMovie implements Parcelable {
     // Hold movie data base on Json from themoviedb in POJO
-//        "adult":false,
-//        "backdrop_path":"/sLbXneTErDvS3HIjqRWQJPiZ4Ci.jpg",
-//        "genre_ids":-[10751,
-//        16,
-//        12,
-//        35
-//        ],
-//        "id":211672,
-//        "original_language":"en",
-//        "original_title":"Minions",
-//        "overview":"Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.",
-//        "release_date":"2015-06-25",
-//        "poster_path":"/qARJ35IrJNFzFWQGcyWP4r1jyXE.jpg",
-//        "popularity":47.804014,
-//        "title":"Minions",
-//        "video":false,
-//        "vote_average":7,
-//        "vote_count":860
+    // e.g.
+    //        "adult":false,
+    //        "backdrop_path":"/sLbXneTErDvS3HIjqRWQJPiZ4Ci.jpg",
+    //        "genre_ids":-[10751,16,12,35],
+    //        "id":211672,
+    //        "original_language":"en",
+    //        "original_title":"Minions",
+    //        "overview":"Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.",
+    //        "release_date":"2015-06-25",
+    //        "poster_path":"/qARJ35IrJNFzFWQGcyWP4r1jyXE.jpg",
+    //        "popularity":47.804014,
+    //        "title":"Minions",
+    //        "video":false,
+    //        "vote_average":7,
+    //        "vote_count":860
 
     private int id;
     private String title;

@@ -1,4 +1,4 @@
-package com.lazycat.popularmovies.app;
+package com.lazycat.android.popularmovies.app;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
