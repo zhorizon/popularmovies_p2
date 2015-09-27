@@ -24,7 +24,7 @@ public class FlavorMovie implements Parcelable {
     //        "popularity":47.804014,
     //        "title":"Minions",
     //        "video":false,
-    //        "vote_average":7,
+    //        "vote_average":7.1,
     //        "vote_count":860
 
     private int id;

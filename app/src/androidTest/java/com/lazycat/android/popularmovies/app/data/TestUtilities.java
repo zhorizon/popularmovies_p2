@@ -50,7 +50,7 @@ public class TestUtilities extends AndroidTestCase {
         movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, "abcedfe");
         movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, TEST_DATE);
         movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, 1.1);
-        movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, 1);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, 1.2);
         movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, 2);
         movieValues.put(MovieContract.MovieEntry.COLUMN_ADULT, "false");
         movieValues.put(MovieContract.MovieEntry.COLUMN_VIDEO, "true");

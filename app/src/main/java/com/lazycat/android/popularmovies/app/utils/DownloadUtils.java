@@ -187,4 +187,19 @@ public class DownloadUtils {
 
         return uri.toString();
     }
+
+    public static String buildBackdropImageUrl(String path) {
+        // build URL to fetch the poster image
+        // e.g.
+        // http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
+
+        String BASE_URL = "http://image.tmdb.org/t/p/";
+        String SIZE = "w500";
+
+        Uri uri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(SIZE)
+                .appendEncodedPath(path).build();
+
+        return uri.toString();
+    }
 }

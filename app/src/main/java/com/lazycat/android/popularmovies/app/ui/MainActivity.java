@@ -78,7 +78,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.Call
         // if back from settings activity, the preference value may be changed
         if (sortBy != null && !sortBy.equals(mSortBy)) {
             // get the fragment by tag
-            MainFragment mf = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragment);
+            MainFragment mf = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main);
 
             if (null != mf) {
                 // notify for sort order changed on main fragment

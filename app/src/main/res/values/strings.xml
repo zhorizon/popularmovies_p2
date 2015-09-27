@@ -1,4 +1,5 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
     <string name="app_name">Popular Movies</string>
 
     <string name="action_settings">Settings</string>
@@ -8,6 +9,8 @@
 
     <string name="label_release_date">Release Date</string>
     <string name="label_rating">Rating</string>
+
+    <string name="format_rating"><xliff:g id="average">%1$1.0f</xliff:g>/<xliff:g id="count">%2$1d</xliff:g></string>
 
     <string name="pref_order_by_key">pref_order_by</string>
     <string name="pref_order_by_label">Order by</string>

@@ -1,8 +1,8 @@
-<fragment
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment"
-    android:name="com.lazycat.android.popularmovies.app.ui.DetailFragment"
-    tools:layout="@layout/fragment_detail"
+    android:id="@+id/movie_detail_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    tools:context="com.lazycat.android.popularmovies.app.ui.DetailActivity"
+    tools:ignore="MergeRootFrame" />
