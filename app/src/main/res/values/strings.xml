@@ -17,6 +17,10 @@
     <string name="pref_order_by_popularity">popularity.desc</string>
     <string name="pref_order_by_vote_average">vote_average.desc</string>
 
+    <string name="action_order_by_popularity">Most Popular</string>
+    <string name="action_order_by_vote_average">Highest-Rated</string>
+    <string name="action_order_by_favorite">My Favorites</string>
+
     <string name="msg_network_not_available">Please connect to network!</string>
 
     <string name="content_authority">com.lazycat.android.popularmovies.app</string>

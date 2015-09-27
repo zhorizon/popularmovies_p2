@@ -60,6 +60,7 @@ public class MovieProvider extends ContentProvider {
         // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
+            // movie
             case MOVIE:
             {
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -129,6 +130,7 @@ public class MovieProvider extends ContentProvider {
         int rowsUpdated;
 
         switch (match) {
+            // movie
             case MOVIE: {
                 normalizeDate(values);
                 rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);

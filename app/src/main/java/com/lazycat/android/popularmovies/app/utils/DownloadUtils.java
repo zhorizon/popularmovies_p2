@@ -76,13 +76,13 @@ public class DownloadUtils {
             JSONObject jsonObject = new JSONObject(movieJsonStr);
 
             // get the results list
-            JSONArray jsonArray = jsonObject.getJSONArray(OWN_RESULTS);
+            JSONArray movieArray = jsonObject.getJSONArray(OWN_RESULTS);
 
-            flavorMovies = new FlavorMovie[jsonArray.length()];
+            flavorMovies = new FlavorMovie[movieArray.length()];
 
-            for (int i = 0; i < jsonArray.length(); i++) {
+            for (int i = 0; i < movieArray.length(); i++) {
                 // get the movie data from results list
-                JSONObject jsonMovieObject = jsonArray.getJSONObject(i);
+                JSONObject jsonMovieObject = movieArray.getJSONObject(i);
 
                 // extract movie data and keep it in flavor movie object
                 FlavorMovie movie = new FlavorMovie();

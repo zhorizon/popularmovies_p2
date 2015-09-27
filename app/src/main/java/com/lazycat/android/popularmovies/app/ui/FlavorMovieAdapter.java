@@ -1,65 +1,56 @@
 package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.Context;
-import android.util.Log;
+import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.lazycat.android.popularmovies.app.FlavorMovie;
 import com.lazycat.android.popularmovies.app.R;
 import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
 /**
  * Created by Cencil on 8/9/2015.
  */
-public class FlavorMovieAdapter extends ArrayAdapter<FlavorMovie> {
+public class FlavorMovieAdapter extends CursorAdapter {
     private static final String LOG_TAG = FlavorMovieAdapter.class.getSimpleName();
-    private LayoutInflater mInflater;
 
-    public FlavorMovieAdapter(Context context, int resource, List<FlavorMovie> objects) {
-        super(context, resource, objects);
+    /**
+     * Cache of the children views for image list item.
+     */
+    public static class ViewHolder {
+        public final ImageView posterView;
 
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public ViewHolder(View view) {
+            posterView = (ImageView) view.findViewById(R.id.list_item_poster_img);
+        }
+    }
+
+    public FlavorMovieAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view;
-        ImageView imageView;
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_poster, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
+    }
 
-        if (convertView == null) {
-            // it is no recyling view, create a new one
-            view = mInflater.inflate(R.layout.list_item_poster, parent, false);
-        } else {
-            view = convertView;
-        }
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        // get the image view
-        imageView = (ImageView) view.findViewById(R.id.list_item_poster_img);
+        // Read poster path from cursor
+        String posterPath = cursor.getString(MainFragment.COL_POSTER_PATH);
 
-        FlavorMovie flavorMovie = getItem(position);
+        String posterUrlStr = DownloadUtils.buildPosterImageUrl(posterPath);
 
-        if (flavorMovie != null) {
-            String urlStr = DownloadUtils.buildPosterImageUrl(flavorMovie.getPosterPath());
-
-            if (urlStr != null) {
-                Log.v(LOG_TAG, "Poster Path: " + flavorMovie.getPosterPath() + " Poster image url: " + urlStr);
-
-                // Using Picasso to fetch images and load them into view
-                Picasso.with(getContext()).load(urlStr).into(imageView);
-            } else {
-                Log.d(LOG_TAG, "urlStr is null!");
-            }
-        } else {
-            Log.d(LOG_TAG, "flavorMovie is null!?");
-        }
-
-        return imageView;
+        // Using Picasso to fetch images and load them into view
+        Picasso.with(context).load(posterUrlStr).into(viewHolder.posterView);
     }
 }

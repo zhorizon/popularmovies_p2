@@ -8,4 +8,11 @@
         <item>@string/pref_order_by_popularity</item>
         <item>@string/pref_order_by_vote_average</item>
     </string-array>
+
+    <!-- Main fragment spinner values -->
+    <string-array name="action_order_by">
+        <item>@string/action_order_by_popularity</item>
+        <item>@string/action_order_by_vote_average</item>
+        <item>@string/action_order_by_favorite</item>
+    </string-array>
 </resources>
