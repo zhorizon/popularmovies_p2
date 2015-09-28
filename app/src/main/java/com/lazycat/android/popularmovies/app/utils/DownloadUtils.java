@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.lazycat.android.popularmovies.app.FlavorMovie;
+import com.lazycat.android.popularmovies.app.MovieReview;
+import com.lazycat.android.popularmovies.app.MovieVideo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +45,7 @@ public class DownloadUtils {
         String movieJsonStr = null;
 
         try {
-            movieJsonStr = fetchMovieJson(new URL(buildUri.toString()));
+            movieJsonStr = downloadJson(new URL(buildUri.toString()));
         } catch (MalformedURLException e) {
             Log.d(LOG_TAG, "URL Error", e);
         }
@@ -51,6 +53,66 @@ public class DownloadUtils {
         Log.v(LOG_TAG, "movieJsonStr: " + movieJsonStr);
 
         return movieJsonStr;
+    }
+
+    public static String downloadMovieVideos(String apiKey, long movieId) {
+        // Construct the URL to get movie videos from themoviedb.org
+        // e.g.
+        // http://api.themoviedb.org/3/movie/id/videos
+
+        final String BASE_URL = "http://api.themoviedb.org/3/movie";
+        final String VIDEOS_PATH = "videos";
+        final String API_KEY_PARM = "api_key";
+
+        Uri buildUri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(Long.toString(movieId))
+                .appendPath(VIDEOS_PATH)
+                .appendQueryParameter(API_KEY_PARM, apiKey)
+                .build();
+
+        Log.v(LOG_TAG, "movie videos URI: " + buildUri.toString());
+
+        String videoJsonStr = null;
+
+        try {
+            videoJsonStr = downloadJson(new URL(buildUri.toString()));
+        } catch (MalformedURLException e) {
+            Log.d(LOG_TAG, "URL Error", e);
+        }
+
+        Log.v(LOG_TAG, "videoJsonStr: " + videoJsonStr);
+
+        return videoJsonStr;
+    }
+
+    public static String downloadMovieReviews(String apiKey, long movieId) {
+        // Construct the URL to get movie reviews from themoviedb.org
+        // e.g.
+        // http://api.themoviedb.org/3/movie/id/previews
+
+        final String BASE_URL = "http://api.themoviedb.org/3/movie";
+        final String REVIEWS_PATH = "reviews";
+        final String API_KEY_PARM = "api_key";
+
+        Uri buildUri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(Long.toString(movieId))
+                .appendPath(REVIEWS_PATH)
+                .appendQueryParameter(API_KEY_PARM, apiKey)
+                .build();
+
+        Log.v(LOG_TAG, "reviews URI: " + buildUri.toString());
+
+        String reviewJsonStr = null;
+
+        try {
+            reviewJsonStr = downloadJson(new URL(buildUri.toString()));
+        } catch (MalformedURLException e) {
+            Log.d(LOG_TAG, "URL Error", e);
+        }
+
+        Log.v(LOG_TAG, "reviewJsonStr: " + reviewJsonStr);
+
+        return reviewJsonStr;
     }
 
     public static FlavorMovie[] getMovieDataFromJson(String movieJsonStr) {
@@ -87,11 +149,11 @@ public class DownloadUtils {
                 // extract movie data and keep it in flavor movie object
                 FlavorMovie movie = new FlavorMovie();
                 movie.setId(jsonMovieObject.getInt((OWN_ID)));
-                movie.setTitle(jsonMovieObject.getString(OWN_TITLE));
-                movie.setOriginalTitle(jsonMovieObject.getString(OWN_ORIGINAL_TITLE));
-                movie.setOverview(jsonMovieObject.getString(OWN_OVERVIEW));
-                movie.setPosterPath(jsonMovieObject.getString(OWN_POSTER_PATH));
-                movie.setBackdropPath(jsonMovieObject.getString(OWN_BACKDROP_PATH));
+                movie.setTitle(isNull(jsonMovieObject.getString(OWN_TITLE)));
+                movie.setOriginalTitle(isNull(jsonMovieObject.getString(OWN_ORIGINAL_TITLE)));
+                movie.setOverview(isNull(jsonMovieObject.getString(OWN_OVERVIEW)));
+                movie.setPosterPath(isNull(jsonMovieObject.getString(OWN_POSTER_PATH)));
+                movie.setBackdropPath(isNull(jsonMovieObject.getString(OWN_BACKDROP_PATH)));
                 movie.setPopularity((float) jsonMovieObject.getDouble(OWN_POPULARITY));
                 movie.setVoteAverage(jsonMovieObject.getInt(OWN_VOTE_AVERAGE));
                 movie.setVoteCount(jsonMovieObject.getInt(OWN_VOTE_COUNT));
@@ -99,9 +161,11 @@ public class DownloadUtils {
                 movie.setVideo(jsonMovieObject.getBoolean(OWN_VIDEO));
 
                 // special handling for date datatype
-                String releaseDateStr = jsonMovieObject.getString(OWN_RELEASE_DATE);
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                movie.setReleaseDate(formatter.parse(releaseDateStr));
+                String releaseDateStr = isNull(jsonMovieObject.getString(OWN_RELEASE_DATE));
+                if (releaseDateStr != null) {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    movie.setReleaseDate(formatter.parse(releaseDateStr));
+                }
 
                 flavorMovies[i] = movie;
             }
@@ -117,7 +181,95 @@ public class DownloadUtils {
         return flavorMovies;
     }
 
-    public static String fetchMovieJson(URL url) {
+    public static MovieVideo[] getVideoDataFromJson(String jsonStr) {
+        MovieVideo[] videos = null;
+
+        // data we are interested to
+        final String OWN_RESULTS = "results";
+        final String OWN_ID = "id";
+        final String OWN_KEY = "key";
+        final String OWN_NAME = "name";
+        final String OWN_SITE = "site";
+        final String OWN_SIZE = "size";
+        final String OWN_TYPE = "type";
+
+        try {
+            // get the root object from JSON string
+            JSONObject jsonObject = new JSONObject(jsonStr);
+
+            // get the results list
+            JSONArray videoArray = jsonObject.getJSONArray(OWN_RESULTS);
+
+            videos = new MovieVideo[videoArray.length()];
+
+            for (int i = 0; i < videoArray.length(); i++) {
+                // get the video data from results list
+                JSONObject jsonVideoObject = videoArray.getJSONObject(i);
+
+                // extract movie data and keep it in flavor movie object
+                MovieVideo video = new MovieVideo();
+                video.setId(jsonVideoObject.getString((OWN_ID)));
+                video.setKey(jsonVideoObject.getString(OWN_KEY));
+                video.setName(jsonVideoObject.getString(OWN_NAME));
+                video.setSite(jsonVideoObject.getString(OWN_SITE));
+                video.setSize(jsonVideoObject.getInt(OWN_SIZE));
+                video.setType(jsonVideoObject.getString(OWN_TYPE));
+
+                videos[i] = video;
+            }
+
+        } catch (JSONException e) {
+            Log.d(LOG_TAG, "JSON Error", e);
+
+            return null;
+        }
+
+        return videos;
+    }
+
+    public static MovieReview[] getReviewDataFromJson(String jsonStr) {
+        MovieReview[] previews = null;
+
+        // data we are interested to
+        final String OWN_RESULTS = "results";
+        final String OWN_ID = "id";
+        final String OWN_AUTHOR = "author";
+        final String OWN_CONTENT = "content";
+        final String OWN_URL = "url";
+
+        try {
+            // get the root object from JSON string
+            JSONObject jsonObject = new JSONObject(jsonStr);
+
+            // get the results list
+            JSONArray previewArray = jsonObject.getJSONArray(OWN_RESULTS);
+
+            previews = new MovieReview[previewArray.length()];
+
+            for (int i = 0; i < previewArray.length(); i++) {
+                // get the video data from results list
+                JSONObject jsonPreviewObject = previewArray.getJSONObject(i);
+
+                // extract movie data and keep it in flavor movie object
+                MovieReview preview = new MovieReview();
+                preview.setId(jsonPreviewObject.getString((OWN_ID)));
+                preview.setAuthor(jsonPreviewObject.getString(OWN_AUTHOR));
+                preview.setContent(jsonPreviewObject.getString(OWN_CONTENT));
+                preview.setUrl(jsonPreviewObject.getString(OWN_URL));
+
+                previews[i] = preview;
+            }
+
+        } catch (JSONException e) {
+            Log.d(LOG_TAG, "JSON Error", e);
+
+            return null;
+        }
+
+        return previews;
+    }
+
+    public static String downloadJson(URL url) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String movieJsonStr = null;
@@ -201,5 +353,9 @@ public class DownloadUtils {
                 .appendEncodedPath(path).build();
 
         return uri.toString();
+    }
+
+    public static String isNull(String str) {
+        return ("null".equals(str)) ? null : str;
     }
 }

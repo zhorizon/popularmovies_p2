@@ -3,7 +3,6 @@ package com.lazycat.android.popularmovies.app;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -35,7 +34,7 @@ public class FlavorMovie implements Parcelable {
     private String backdropPath;
     private Date releaseDate;
     private float popularity;
-    private int voteAverage;
+    private float voteAverage;
     private int voteCount;
     private boolean adult = false;
     private boolean video = false;
@@ -95,11 +94,6 @@ public class FlavorMovie implements Parcelable {
         return releaseDate;
     }
 
-    public String getReleaseDateString() {
-        SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
-        return df.format(releaseDate);
-    }
-
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
     }
@@ -124,11 +118,11 @@ public class FlavorMovie implements Parcelable {
         this.adult = adult;
     }
 
-    public int getVoteAverage() {
+    public float getVoteAverage() {
         return voteAverage;
     }
 
-    public void setVoteAverage(int voteAverage) {
+    public void setVoteAverage(float voteAverage) {
         this.voteAverage = voteAverage;
     }
 
@@ -180,7 +174,7 @@ public class FlavorMovie implements Parcelable {
         out.writeString(backdropPath);
         out.writeLong(releaseDate.getTime());
         out.writeFloat(popularity);
-        out.writeInt(voteAverage);
+        out.writeFloat(voteAverage);
         out.writeInt(voteCount);
         out.writeString(Boolean.toString(adult));
         out.writeString(Boolean.toString(video));
@@ -195,7 +189,7 @@ public class FlavorMovie implements Parcelable {
         backdropPath = in.readString();
         releaseDate = new Date(in.readLong());
         popularity = in.readFloat();
-        voteAverage = in.readInt();
+        voteAverage = in.readFloat();
         voteCount = in.readInt();
         adult = Boolean.parseBoolean(in.readString());
         video = Boolean.parseBoolean(in.readString());

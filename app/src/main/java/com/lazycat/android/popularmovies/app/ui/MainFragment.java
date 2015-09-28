@@ -252,7 +252,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, flavorMovie.getOverview());
                     movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, flavorMovie.getPosterPath());
                     movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, flavorMovie.getBackdropPath());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, flavorMovie.getReleaseDate().getTime());
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, flavorMovie.getReleaseDate() == null ? null : flavorMovie.getReleaseDate().getTime());
                     movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, flavorMovie.getPopularity());
                     movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, flavorMovie.getVoteAverage());
                     movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, flavorMovie.getVoteCount());

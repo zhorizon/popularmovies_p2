@@ -13,15 +13,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lazycat.android.popularmovies.app.MovieReview;
+import com.lazycat.android.popularmovies.app.MovieVideo;
 import com.lazycat.android.popularmovies.app.R;
 import com.lazycat.android.popularmovies.app.data.MovieContract;
 import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
 import com.lazycat.android.popularmovies.app.utils.NetworkUtils;
 import com.lazycat.android.popularmovies.app.utils.Utility;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 
 /**
@@ -39,6 +44,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mRatingView;
     private ImageView mPosterView;
     private ImageView mBackdropView;
+    private ListView mVideoView;
+    private ListView mReviewView;
+
+    private VideoAdapter mVideoAdatper;
+    private ReviewAdapter mReviewAdapter;
+
+    private ArrayList<MovieVideo> mVideoList;
+    private ArrayList<MovieReview> mReviewList;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -68,6 +81,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mVideoList = new ArrayList<MovieVideo>();
+        mReviewList = new ArrayList<MovieReview>();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Bundle arguments = getArguments();
@@ -84,6 +105,20 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mRatingView = (TextView) rootView.findViewById(R.id.textView_rating);
         mPosterView = (ImageView) rootView.findViewById(R.id.imageView_poster);
         mBackdropView = (ImageView) rootView.findViewById(R.id.imageView_backdrop);
+        mVideoView = (ListView) rootView.findViewById(R.id.listView_video);
+        mReviewView = (ListView) rootView.findViewById(R.id.listView_review);
+
+        mVideoAdatper = new VideoAdapter(
+                getActivity(),
+                R.layout.list_item_video,
+                mVideoList);
+        mVideoView.setAdapter(mVideoAdatper);
+
+        mReviewAdapter = new ReviewAdapter(
+                getActivity(),
+                R.layout.list_item_review,
+                mReviewList);
+        mReviewView.setAdapter(mReviewAdapter);
 
         return rootView;
     }
@@ -91,6 +126,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+
+        if (null != mUri) {
+            // fetch movie video data from internet
+            new FetchVideoTask(mVideoView, mVideoAdatper, mVideoList).execute(
+                    new String[]{
+                            Long.toString(ContentUris.parseId(mUri)),
+                            getActivity().getString(R.string.themoviedb_api_key)}
+            );
+
+            // fetch review video data from internet
+            new FetchReviewTask(mReviewView, mReviewAdapter, mReviewList).execute(
+                    new String[]{
+                            Long.toString(ContentUris.parseId(mUri)),
+                            getActivity().getString(R.string.themoviedb_api_key)}
+            );
+        }
 
         super.onActivityCreated(savedInstanceState);
     }
