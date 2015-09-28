@@ -1,6 +1,7 @@
 package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.ContentUris;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -107,6 +109,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mBackdropView = (ImageView) rootView.findViewById(R.id.imageView_backdrop);
         mVideoView = (ListView) rootView.findViewById(R.id.listView_video);
         mReviewView = (ListView) rootView.findViewById(R.id.listView_review);
+
+        mVideoView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MovieVideo video = mVideoAdatper.getItem(position);
+
+                if (video != null) {
+                    // open video in youtube
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.getKey()));
+                    intent.putExtra("VIDEO_ID", video.getKey());
+                    startActivity(intent);
+                } else {
+                    Log.d(LOG_TAG, "video is null?");
+                }
+            }
+        });
 
         mVideoAdatper = new VideoAdapter(
                 getActivity(),

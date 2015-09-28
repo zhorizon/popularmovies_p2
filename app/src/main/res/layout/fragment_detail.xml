@@ -24,9 +24,8 @@
                 android:id="@+id/textView_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@id/imageView_backdrop"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:text="Title"
                 android:textSize="34sp"
                 android:textColor="@color/white" />
         </RelativeLayout>
