@@ -1,61 +1,51 @@
 package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.lazycat.android.popularmovies.app.MovieReview;
 import com.lazycat.android.popularmovies.app.R;
 
-import java.util.List;
 
 /**
  * Created by Cencil on 9/28/2015.
  */
-public class ReviewAdapter extends ArrayAdapter<MovieReview> {
+public class ReviewAdapter extends CursorAdapter {
     private static final String LOG_TAG = ReviewAdapter.class.getSimpleName();
-    private LayoutInflater mInflater;
 
-    public ReviewAdapter(Context context, int resource, List<MovieReview> objects) {
-        super(context, resource, objects);
-
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public ReviewAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view;
-        VideoHolder holder = null;
-
-        if (convertView == null) {
-            // it is no recyling view, create a new one
-            view = mInflater.inflate(R.layout.list_item_review, parent, false);
-
-            holder = new VideoHolder();
-            holder.textAuthor = (TextView) view.findViewById(R.id.textView_author);
-            holder.textContent = (TextView) view.findViewById(R.id.textView_content);
-
-            view.setTag(holder);
-        } else {
-            view = convertView;
-            holder = (VideoHolder) view.getTag();
-        }
-
-        MovieReview review = getItem(position);
-
-        if (review != null) {
-            holder.textAuthor.setText(review.getAuthor());
-            holder.textContent.setText(review.getContent());
-        }
-
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_review, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
         return view;
     }
 
-    static class VideoHolder {
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        // Read video information from cursor
+        viewHolder.textAuthor.setText(cursor.getString(DetailFragment.COL_REVIEW_AUTHOR));
+        viewHolder.textContent.setText(cursor.getString(DetailFragment.COL_REVIEW_CONTENT));
+    }
+
+    // Cache of the children view
+    static class ViewHolder {
         TextView textAuthor;
         TextView textContent;
+
+        public ViewHolder(View view) {
+            textAuthor = (TextView) view.findViewById(R.id.textView_author);
+            textContent = (TextView) view.findViewById(R.id.textView_content);
+        }
     }
 }

@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lazycat.android.popularmovies.app.data.MovieContract.MovieEntry;
+import com.lazycat.android.popularmovies.app.data.MovieContract.VideoEntry;
+import com.lazycat.android.popularmovies.app.data.MovieContract.ReviewEntry;
 
 /**
  * Manages a local database for movie data.
@@ -35,9 +37,34 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_BACKDROP_PATH + " TEXT NULL, " +
                 MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, " +
-                MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL);";
+                MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL, " +
+                MovieEntry.COLUMN_FAVORITE + " INTEGER NOT NULL);";
+
+        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE " + VideoEntry.TABLE_NAME + "(" +
+                VideoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                VideoEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL, " +
+                VideoEntry.COLUMN_ID + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_SITE + " TEXT NULL, " +
+                VideoEntry.COLUMN_SIZE + " INTEGER NULL, " +
+                VideoEntry.COLUMN_TYPE + " TEXT NULL, " +
+                " FOREIGN KEY (" + VideoEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "));";
+
+        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + "(" +
+                ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ReviewEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL, " +
+                ReviewEntry.COLUMN_ID + " TEXT NOT NULL, " +
+                ReviewEntry.COLUMN_AUTHOR + " TEXT NULL, " +
+                ReviewEntry.COLUMN_CONTENT + " TEXT NULL, " +
+                ReviewEntry.COLUMN_URL + " TEXT NULL, " +
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "));";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_VIDEO_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
     @Override
@@ -49,6 +76,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideoEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

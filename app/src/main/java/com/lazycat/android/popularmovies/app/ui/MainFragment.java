@@ -1,15 +1,12 @@
 package com.lazycat.android.popularmovies.app.ui;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +14,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.lazycat.android.popularmovies.app.FlavorMovie;
 import com.lazycat.android.popularmovies.app.R;
 import com.lazycat.android.popularmovies.app.data.MovieContract;
-import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
 import com.lazycat.android.popularmovies.app.utils.NetworkUtils;
 import com.lazycat.android.popularmovies.app.utils.Utility;
 
@@ -162,7 +157,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         // check the network status before call theMovieDB api!!
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
-            new FetchMovieTask().execute(prefSortOrder);
+            new FetchMovieTask(getActivity(), mFlavorMovieAdapter).execute(
+                    prefSortOrder,
+                    getActivity().getString(R.string.themoviedb_api_key));
         } else {
             Toast.makeText(getActivity(), getString(R.string.msg_network_not_available), Toast.LENGTH_SHORT).show();
         }
@@ -204,79 +201,5 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // above is about to be closed. We need to make sure we are no
         // longer using it.
         mFlavorMovieAdapter.swapCursor(null);
-    }
-
-    private class FetchMovieTask extends AsyncTask<String, Void, FlavorMovie[]> {
-        @Override
-        protected FlavorMovie[] doInBackground(String... params) {
-            if (params.length == 0)
-                return null;
-
-            String sortBy = params[0];
-            String apiKey = getString(R.string.themoviedb_api_key);
-
-            if (sortBy == null) {
-                Log.d(LOG_TAG, "sortBy is null");
-                return null;
-            }
-
-            if (apiKey == null) {
-                Log.d(LOG_TAG, "apiKey is null");
-                return null;
-            }
-
-            // download movies data from themoviedb
-            String moviesJsonStr = DownloadUtils.discoverMoviesFromTheMovieDb(apiKey, sortBy);
-
-            if (moviesJsonStr == null) {
-                Log.d(LOG_TAG, "moviesJsonStr is null");
-                return null;
-            }
-
-            // parse the return JSON string to flavor movie object array
-            return DownloadUtils.getMovieDataFromJson(moviesJsonStr);
-        }
-
-        @Override
-        protected void onPostExecute(FlavorMovie[] flavorMovies) {
-            super.onPostExecute(flavorMovies);
-
-            if (flavorMovies != null) {
-                // add or update to database
-                for (FlavorMovie flavorMovie : flavorMovies) {
-                    ContentValues movieValues = new ContentValues();
-
-                    movieValues.put(MovieContract.MovieEntry._ID, flavorMovie.getId());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, flavorMovie.getTitle());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, flavorMovie.getOriginalTitle());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, flavorMovie.getOverview());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, flavorMovie.getPosterPath());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, flavorMovie.getBackdropPath());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, flavorMovie.getReleaseDate() == null ? null : flavorMovie.getReleaseDate().getTime());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, flavorMovie.getPopularity());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, flavorMovie.getVoteAverage());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, flavorMovie.getVoteCount());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_ADULT, flavorMovie.isAdult());
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_VIDEO, flavorMovie.isVideo());
-
-                    int updated = getActivity().getContentResolver().update(
-                            MovieContract.MovieEntry.CONTENT_URI,
-                            movieValues,
-                            MovieContract.MovieEntry._ID + "=?",
-                            new String[] {Long.toString(flavorMovie.getId())});
-
-                    if (updated == 0) {
-                        getActivity().getContentResolver().insert(
-                                MovieContract.MovieEntry.CONTENT_URI,
-                                movieValues);
-                    }
-                }
-            } else {
-                Log.d(LOG_TAG, "flavorMovies is null!");
-            }
-
-            // must notify the adapter data changed!!
-            mFlavorMovieAdapter.notifyDataSetChanged();
-        }
     }
 }

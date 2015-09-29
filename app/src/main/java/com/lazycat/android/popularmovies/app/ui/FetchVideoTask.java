@@ -1,28 +1,28 @@
 package com.lazycat.android.popularmovies.app.ui;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ListView;
 
 import com.lazycat.android.popularmovies.app.MovieVideo;
+import com.lazycat.android.popularmovies.app.data.MovieContract;
 import com.lazycat.android.popularmovies.app.utils.DownloadUtils;
-import com.lazycat.android.popularmovies.app.utils.Utility;
 
-import java.util.ArrayList;
 
 /**
  * Created by Cencil on 9/28/2015.
  */
 public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
     private static final String LOG_TAG = FetchVideoTask.class.getSimpleName();
-    private VideoAdapter adapter;
-    private ArrayList<MovieVideo> mVideoList;
-    private ListView mVideoView;
 
-    public FetchVideoTask(ListView view, VideoAdapter adapter, ArrayList<MovieVideo> data) {
-        this.adapter = adapter;
-        this.mVideoList = data;
-        mVideoView = view;
+    private Context mContext;
+    private VideoAdapter mVideoAdapter;
+    private long mMovieId;
+
+    public FetchVideoTask(Context context, VideoAdapter adapter) {
+        this.mContext = context;
+        this.mVideoAdapter = adapter;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
         if (params.length == 0)
             return null;
 
-        long movieId = Long.parseLong(params[0]);
+        mMovieId = Long.parseLong(params[0]);
         String apiKey = params[1];
 
         if (apiKey == null) {
@@ -39,7 +39,7 @@ public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
         }
 
         // download movies data from themoviedb
-        String videoJsonStr = DownloadUtils.downloadMovieVideos(apiKey, movieId);
+        String videoJsonStr = DownloadUtils.downloadMovieVideos(apiKey, mMovieId);
 
         if (videoJsonStr == null) {
             Log.d(LOG_TAG, "videoJsonStr is null");
@@ -54,54 +54,37 @@ public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
     protected void onPostExecute(MovieVideo[] movieVideos) {
         super.onPostExecute(movieVideos);
 
-        mVideoList.clear();
-
         if (movieVideos != null) {
+            // add or update to database
             for (MovieVideo video : movieVideos) {
-                mVideoList.add(video);
+                ContentValues videoValues = new ContentValues();
+
+                videoValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_KEY, mMovieId);
+                videoValues.put(MovieContract.VideoEntry.COLUMN_ID, video.getId());
+                videoValues.put(MovieContract.VideoEntry.COLUMN_KEY, video.getKey());
+                videoValues.put(MovieContract.VideoEntry.COLUMN_NAME, video.getName());
+                videoValues.put(MovieContract.VideoEntry.COLUMN_SITE, video.getSite());
+                videoValues.put(MovieContract.VideoEntry.COLUMN_SIZE, video.getSize());
+                videoValues.put(MovieContract.VideoEntry.COLUMN_TYPE, video.getType());
+
+                int updated = mContext.getContentResolver().update(
+                        MovieContract.VideoEntry.CONTENT_URI,
+                        videoValues,
+                        MovieContract.VideoEntry.COLUMN_MOVIE_KEY + "=? AND " +
+                        MovieContract.VideoEntry.COLUMN_ID + "=?",
+                        new String[] {Long.toString(mMovieId), video.getId()});
+
+                if (updated == 0) {
+                    mContext.getContentResolver().insert(
+                            MovieContract.VideoEntry.CONTENT_URI,
+                            videoValues);
+                }
             }
         } else {
-            Log.d(LOG_TAG, "movieVideos is null");
+            Log.d(LOG_TAG, "movieVideo is null!");
         }
-        adapter.notifyDataSetChanged();
 
-//        Utility.setListViewHeightBasedOnChildren(mVideoView);
-
-//            if (movieVideo != null) {
-//                // add or update to database
-//                for (FlavorMovie flavorMovie : flavorMovies) {
-//                    ContentValues movieValues = new ContentValues();
-//
-//                    movieValues.put(MovieContract.MovieEntry._ID, flavorMovie.getId());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, flavorMovie.getTitle());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, flavorMovie.getOriginalTitle());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, flavorMovie.getOverview());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, flavorMovie.getPosterPath());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, flavorMovie.getBackdropPath());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, flavorMovie.getReleaseDate().getTime());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, flavorMovie.getPopularity());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, flavorMovie.getVoteAverage());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, flavorMovie.getVoteCount());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_ADULT, flavorMovie.isAdult());
-//                    movieValues.put(MovieContract.MovieEntry.COLUMN_VIDEO, flavorMovie.isVideo());
-//
-//                    int updated = getActivity().getContentResolver().update(
-//                            MovieContract.MovieEntry.CONTENT_URI,
-//                            movieValues,
-//                            MovieContract.MovieEntry._ID + "=?",
-//                            new String[] {Long.toString(flavorMovie.getId())});
-//
-//                    if (updated == 0) {
-//                        getActivity().getContentResolver().insert(
-//                                MovieContract.MovieEntry.CONTENT_URI,
-//                                movieValues);
-//                    }
-//                }
-//            } else {
-//                Log.d(LOG_TAG, "movieVideo is null!");
-//            }
-//
-//            // must notify the adapter data changed!!
-//            mFlavorMovieAdapter.notifyDataSetChanged();
+        // must notify the adapter data changed!!
+        mVideoAdapter.notifyDataSetChanged();
     }
 }
