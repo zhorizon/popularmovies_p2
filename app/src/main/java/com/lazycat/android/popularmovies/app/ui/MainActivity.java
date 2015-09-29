@@ -16,19 +16,37 @@ import com.lazycat.android.popularmovies.app.R;
 import com.lazycat.android.popularmovies.app.utils.Utility;
 
 public class MainActivity extends ActionBarActivity implements MainFragment.Callback, ActionBar.OnNavigationListener {
-
-    private SpinnerAdapter mSpinnerAdapter;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private boolean mTwoPane;
 
     // Current sorting by value, will be saved in bundle
     private String mSortBy = null;
 
+    private SpinnerAdapter mSpinnerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        String sortBy = Utility.getPreferenceSortOrder(this);
 
-        mTwoPane = false;
+        if (findViewById(R.id.movie_detail_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
 
         // add spinner to action bar
         mSpinnerAdapter = ArrayAdapter.createFromResource(this,
@@ -84,6 +102,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.Call
                 // notify for sort order changed on main fragment
                 mf.onSortOrderChanged();
             }
+
             mSortBy = sortBy;
         }
     }
@@ -114,18 +133,18 @@ public class MainActivity extends ActionBarActivity implements MainFragment.Call
     @Override
     public void onItemSelected(Uri contentUri) {
         if (mTwoPane) {
-//            // In two-pane mode, show the detail view in this activity by
-//            // adding or replacing the detail fragment using a
-//            // fragment transaction.
-//            Bundle arguments = new Bundle();
-//            arguments.putParcelable(DetailFragment.DETAIL_URI, contentUri);
-//
-//            DetailFragment df = new DetailFragment();
-//            df.setArguments(arguments);
-//
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.weather_detail_container, df, DETAILFRAGMENT_TAG)
-//                    .commit();
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(DetailFragment.DETAIL_URI, contentUri);
+
+            DetailFragment df = new DetailFragment();
+            df.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, df, DETAILFRAGMENT_TAG)
+                    .commit();
         } else {
             // Otherwise we need to launch a new detail activity
             Intent intent = new Intent(this, DetailActivity.class)

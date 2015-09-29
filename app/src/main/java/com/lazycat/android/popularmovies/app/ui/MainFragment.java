@@ -188,6 +188,10 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // old cursor once we return.)
         mFlavorMovieAdapter.swapCursor(data);
 
+//        if (mFlavorMovieAdapter.getCount() > 0) {
+//            mGridView.getItemAtPosition(0);
+//        }
+
         if (mPosition != GridView.INVALID_POSITION) {
             // if we don't need to restart the loader, and there's a desired position on restore
             // to, do so now.
