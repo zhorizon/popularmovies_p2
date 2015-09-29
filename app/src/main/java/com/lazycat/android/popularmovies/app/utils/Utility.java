@@ -31,7 +31,8 @@ public class Utility {
             return MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         } else if (prefSortOrder.equals(context.getString(R.string.pref_order_by_vote_average))) {
             return MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-        }
+        } else if (prefSortOrder.equals(context.getString(R.string.pref_order_by_favorite)))
+            return MovieContract.MovieEntry.COLUMN_FAVORITE + " DESC";
 
         return null;
     }
@@ -42,6 +43,8 @@ public class Utility {
             return context.getString(R.string.pref_order_by_popularity);
         } else if (actionSortOrder.equals(context.getString(R.string.action_order_by_vote_average))) {
             return context.getString(R.string.pref_order_by_vote_average);
+        } else if (actionSortOrder.equals(context.getString(R.string.action_order_by_favorite))) {
+            return context.getString(R.string.pref_order_by_favorite);
         }
 
         return null;

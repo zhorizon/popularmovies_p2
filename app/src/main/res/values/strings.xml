@@ -9,6 +9,7 @@
 
     <string name="label_trailer">Trailers:</string>
     <string name="label_review">Reviews:</string>
+    <string name="label_favorite">MARK AS FAVORITE</string>
 
     <string name="format_rating"><xliff:g id="average">%1$1.0f</xliff:g>/<xliff:g id="count">%2$1d</xliff:g></string>
 
@@ -17,8 +18,10 @@
     <string name="pref_order_by_default">popularity.desc</string>
     <string name="pref_order_by_popularity_label">Most Popular</string>
     <string name="pref_order_by_vote_average_label">Highest-Rated</string>
+    <string name="pref_order_by_favorite_label">My Favorites</string>
     <string name="pref_order_by_popularity">popularity.desc</string>
     <string name="pref_order_by_vote_average">vote_average.desc</string>
+    <string name="pref_order_by_favorite">favorite</string>
 
     <string name="action_order_by_popularity">Most Popular</string>
     <string name="action_order_by_vote_average">Highest-Rated</string>

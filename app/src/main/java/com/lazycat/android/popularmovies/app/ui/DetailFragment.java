@@ -1,6 +1,7 @@
 package com.lazycat.android.popularmovies.app.ui;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -45,6 +47,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private ImageView mBackdropView;
     private ListView mVideoView;
     private ListView mReviewView;
+    private Button mFavoriteButton;
 
     private VideoAdapter mVideoAdatper;
     private ReviewAdapter mReviewAdapter;
@@ -61,7 +64,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
             MovieContract.MovieEntry.COLUMN_VOTE_COUNT,
             MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-            MovieContract.MovieEntry.COLUMN_BACKDROP_PATH
+            MovieContract.MovieEntry.COLUMN_BACKDROP_PATH,
+            MovieContract.MovieEntry.COLUMN_FAVORITE
     };
 
     // these constants correspond to the projection defined above, and must change if the
@@ -74,6 +78,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int COL_VOTE_COUNT = 5;
     private static final int COL_POSTER_PATH = 6;
     private static final int COL_BACKDROP_PATH = 7;
+    private static final int COL_FAVORITE = 8;
 
     private static final String[] VIDEO_COLUMNS = {
             MovieContract.VideoEntry._ID,
@@ -124,6 +129,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mBackdropView = (ImageView) rootView.findViewById(R.id.imageView_backdrop);
         mVideoView = (ListView) rootView.findViewById(R.id.listView_video);
         mReviewView = (ListView) rootView.findViewById(R.id.listView_review);
+        mFavoriteButton = (Button) rootView.findViewById(R.id.button_favorite);
 
         // video adapter
         mVideoAdatper = new VideoAdapter(getActivity(), null, 0);
@@ -166,6 +172,31 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 } else {
                     Log.d(LOG_TAG, "cursor is null?");
                 }
+            }
+        });
+
+        // toggle change 'mark as favorite' button background color
+        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean mark = (Integer) mFavoriteButton.getTag() == 1;
+
+                // toggle change
+                mark = !mark;
+
+                // update content
+                ContentValues updateValues = new ContentValues();
+                updateValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, mark);
+
+                getActivity().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI,
+                        updateValues, MovieContract.MovieEntry._ID + "=?",
+                        new String[] {Long.toString(ContentUris.parseId(mUri))});
+
+                // save value back to button
+                mFavoriteButton.setTag(mark ? 1 : 0);
+
+                // reflect UX
+                highlightFavorite();
             }
         });
 
@@ -263,6 +294,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mReleaseDateView.setText(Utility.getFormattedYear(getActivity(), data.getLong(COL_RELEASE_DATE)));
                 mRatingView.setText(Utility.getFormattedRating(getActivity(), data.getFloat(COL_VOTE_AVERAGE), data.getInt(COL_VOTE_COUNT)));
 
+                // Keep favorite data in button
+                mFavoriteButton.setTag(data.getInt(COL_FAVORITE));
+                highlightFavorite();
+
                 // check the network status here before access internet
                 if (NetworkUtils.isNetworkAvailable(getActivity())) {
                     // Build poster path URL string
@@ -324,5 +359,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void onReviewDataSetChanged() {
         getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
+    }
+
+    private void highlightFavorite() {
+        boolean mark = (Integer) mFavoriteButton.getTag() == 1;
+
+        mFavoriteButton.setBackgroundColor(
+                mark ?
+                        getActivity().getResources().getColor(R.color.blue_500) :
+                        getActivity().getResources().getColor(R.color.blue_100));
     }
 }
