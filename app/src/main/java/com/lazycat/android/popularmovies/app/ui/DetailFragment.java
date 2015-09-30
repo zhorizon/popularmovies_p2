@@ -4,15 +4,19 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,10 +37,12 @@ import com.squareup.picasso.Picasso;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, FetchVideoTask.Callback, FetchReviewTask.Callback {
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     public static final String DETAIL_URI = "URI";
+    private ShareActionProvider mShareActionProvider;
+    private String mShareVideoStr;
     private Uri mUri;
 
     private TextView mTitleView;
@@ -108,6 +114,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // set this to let the fragment call the call back method to inflate menu to container
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -133,24 +142,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         // video adapter
         mVideoAdatper = new VideoAdapter(getActivity(), null, 0);
-        mVideoAdatper.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                onVideoDataSetChanged();
-            }
-        });
         mVideoView.setAdapter(mVideoAdatper);
 
         // review adapter
         mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
-        mReviewAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                onReviewDataSetChanged();
-            }
-        });
         mReviewView.setAdapter(mReviewAdapter);
 
         mVideoView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -216,14 +211,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         if (null != mUri) {
             // fetch movie video data from internet
-            new FetchVideoTask(getActivity(), mVideoAdatper).execute(
+            new FetchVideoTask(getActivity(), this).execute(
                     new String[]{
                             Long.toString(ContentUris.parseId(mUri)),
                             getActivity().getString(R.string.themoviedb_api_key)}
             );
 
             // fetch review video data from internet
-            new FetchReviewTask(getActivity(), mReviewAdapter).execute(
+            new FetchReviewTask(getActivity(), this).execute(
                     new String[]{
                             Long.toString(ContentUris.parseId(mUri)),
                             getActivity().getString(R.string.themoviedb_api_key)}
@@ -231,6 +226,26 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.detailfragment, menu);
+
+        // locate MenuItem with ShareActionProvider
+        MenuItem shareItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+
+        // if onLoadFinished happens before this, we can go ahead and set the share intent
+        if (mShareVideoStr != null) {
+            mShareActionProvider.setShareIntent(createShareVideoIntent());
+        } else {
+            Log.d(LOG_TAG, "mShareVideoStr is null?");
+        }
     }
 
     @Override
@@ -325,6 +340,21 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
             case VIDEO_LOADER:
                 mVideoAdatper.swapCursor(data);
+
+                // build share video string if has at least one video
+                if (mVideoAdatper.getCount() > 0) {
+                    mShareVideoStr = "https://youtu.be/" + data.getString(COL_VIDEO_KEY);
+
+                    Log.v(LOG_TAG, "mShareVideoStr: " + mShareVideoStr);
+
+                    // if onCreateOptionsMenu has already happened, we need to update the share intent
+                    if (mShareActionProvider != null) {
+                        mShareActionProvider.setShareIntent(createShareVideoIntent());
+                    }
+                } else {
+                    mShareVideoStr = null;
+                }
+
                 break;
             case REVIEW_LOADER:
                 mReviewAdapter.swapCursor(data);
@@ -348,16 +378,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mReviewAdapter.swapCursor(null);
                 break;
             default:
-                Log.d(LOG_TAG, "Unknown loader id");
+                Log.d(LOG_TAG, "onLoaderReset - Unknown loader id");
                 break;
         }
     }
 
-    private void onVideoDataSetChanged() {
+    @Override
+    public void onFetchVideoFinished() {
         getLoaderManager().restartLoader(VIDEO_LOADER, null, this);
     }
 
-    private void onReviewDataSetChanged() {
+    @Override
+    public void onFetchReviewFinished() {
         getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
     }
 
@@ -368,5 +400,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mark ?
                         getActivity().getResources().getColor(R.color.blue_500) :
                         getActivity().getResources().getColor(R.color.blue_100));
+    }
+
+    private Intent createShareVideoIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mShareVideoStr);
+        return shareIntent;
     }
 }

@@ -26,6 +26,7 @@
     <string name="action_order_by_popularity">Most Popular</string>
     <string name="action_order_by_vote_average">Highest-Rated</string>
     <string name="action_order_by_favorite">My Favorites</string>
+    <string name="action_share">Share</string>
 
     <string name="msg_network_not_available">Please connect to network!</string>
 

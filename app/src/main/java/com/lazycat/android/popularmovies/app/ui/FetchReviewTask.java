@@ -17,12 +17,16 @@ public class FetchReviewTask extends AsyncTask<String, Void, MovieReview[]> {
     private static final String LOG_TAG = FetchReviewTask.class.getSimpleName();
 
     private Context mContext;
-    private ReviewAdapter mReviewAdapter;
     private long mMovieId;
+    private Callback callback;
 
-    public FetchReviewTask(Context context, ReviewAdapter adapter) {
+    public interface Callback {
+        void onFetchReviewFinished();
+    }
+
+    public FetchReviewTask(Context context, Callback callback) {
         this.mContext = context;
-        this.mReviewAdapter = adapter;
+        this.callback = callback;
     }
 
     @Override
@@ -54,35 +58,35 @@ public class FetchReviewTask extends AsyncTask<String, Void, MovieReview[]> {
     protected void onPostExecute(MovieReview[] movieReviews) {
         super.onPostExecute(movieReviews);
 
-            if (movieReviews != null) {
-                // add or update to database
-                for (MovieReview review : movieReviews) {
-                    ContentValues reviewValues = new ContentValues();
+        if (movieReviews != null) {
+            // add or update to database
+            for (MovieReview review : movieReviews) {
+                ContentValues reviewValues = new ContentValues();
 
-                    reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, mMovieId);
-                    reviewValues.put(MovieContract.ReviewEntry.COLUMN_ID, review.getId());
-                    reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
-                    reviewValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
-                    reviewValues.put(MovieContract.ReviewEntry.COLUMN_URL, review.getUrl());
+                reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, mMovieId);
+                reviewValues.put(MovieContract.ReviewEntry.COLUMN_ID, review.getId());
+                reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
+                reviewValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
+                reviewValues.put(MovieContract.ReviewEntry.COLUMN_URL, review.getUrl());
 
-                    int updated = mContext.getContentResolver().update(
+                int updated = mContext.getContentResolver().update(
+                        MovieContract.ReviewEntry.CONTENT_URI,
+                        reviewValues,
+                        MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + "=? AND " +
+                                MovieContract.ReviewEntry.COLUMN_ID + "=?",
+                        new String[] {Long.toString(mMovieId), review.getId()});
+
+                if (updated == 0) {
+                    mContext.getContentResolver().insert(
                             MovieContract.ReviewEntry.CONTENT_URI,
-                            reviewValues,
-                            MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + "=? AND " +
-                                    MovieContract.ReviewEntry.COLUMN_ID + "=?",
-                            new String[] {Long.toString(mMovieId), review.getId()});
-
-                    if (updated == 0) {
-                        mContext.getContentResolver().insert(
-                                MovieContract.ReviewEntry.CONTENT_URI,
-                                reviewValues);
-                    }
+                            reviewValues);
                 }
-            } else {
-                Log.d(LOG_TAG, "movieVideo is null!");
             }
+        } else {
+            Log.d(LOG_TAG, "movieVideo is null!");
+        }
 
-            // must notify the adapter data changed!!
-            mReviewAdapter.notifyDataSetChanged();
+        // notify the callback data changed!!
+        callback.onFetchReviewFinished();
     }
 }

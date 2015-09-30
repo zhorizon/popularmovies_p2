@@ -53,9 +53,9 @@ public class MainActivity extends ActionBarActivity implements MainFragment.Call
                 R.array.action_order_by,
                 android.R.layout.simple_spinner_dropdown_item);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
+//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     @Override

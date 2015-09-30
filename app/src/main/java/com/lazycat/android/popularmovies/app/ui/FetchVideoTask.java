@@ -17,12 +17,16 @@ public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
     private static final String LOG_TAG = FetchVideoTask.class.getSimpleName();
 
     private Context mContext;
-    private VideoAdapter mVideoAdapter;
     private long mMovieId;
+    private Callback callback;
 
-    public FetchVideoTask(Context context, VideoAdapter adapter) {
+    public interface Callback {
+        void onFetchVideoFinished();
+    }
+
+    public FetchVideoTask(Context context, Callback callback) {
         this.mContext = context;
-        this.mVideoAdapter = adapter;
+        this.callback = callback;
     }
 
     @Override
@@ -84,7 +88,7 @@ public class FetchVideoTask extends AsyncTask<String, Void, MovieVideo[]> {
             Log.d(LOG_TAG, "movieVideo is null!");
         }
 
-        // must notify the adapter data changed!!
-        mVideoAdapter.notifyDataSetChanged();
+        // notify the callback data changed!!
+        callback.onFetchVideoFinished();
     }
 }
