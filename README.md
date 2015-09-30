@@ -1,5 +1,5 @@
-# popularmovies_p1
-UDACITY Android Nanodegree P1
+# popularmovies_p2
+UDACITY Android Nanodegree P2
 
 Please add a keys.xml file under res/values for themoviedb api key.
 
